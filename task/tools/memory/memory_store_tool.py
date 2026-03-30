@@ -24,13 +24,15 @@ class StoreMemoryTool(BaseTool):
     @property
     def name(self) -> str:
         # TODO: provide self-descriptive name
-        raise NotImplementedError()
+        return "store_memory"
 
     @property
     def description(self) -> str:
         # TODO: provide tool description that will help LLM to understand when to use this tools and cover 'tricky'
         #  moments (not more 1024 chars)
-        raise NotImplementedError()
+        return ("Store important facts about the user in long-term memory. Use this tool to save persistent user information "
+                "like preferences, personal details, goals, and important context. This memory persists across conversations "
+                "and helps the agent provide personalized responses.")
 
     @property
     def parameters(self) -> dict[str, Any]:
@@ -39,7 +41,34 @@ class StoreMemoryTool(BaseTool):
         #  - category is string, description: "Category of the info (e.g., 'preferences', 'personal_info', 'goals', 'plans', 'context')", default is 'general' required
         #  - importance is number, description: "Importance score between 0 and 1. Higher means more important to remember.", minimum is 0, maximum is 1, default is 0.5
         #  - topics is array of strings, description: "Related topics or tags for the memory", default is empty array
-        raise NotImplementedError()
+        return {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "description": "The memory content to store. Should be a clear, concise fact about the user."
+                },
+                "category": {
+                    "type": "string",
+                    "description": "Category of the info (e.g., 'preferences', 'personal_info', 'goals', 'plans', 'context')",
+                    "default": "general"
+                },
+                "importance": {
+                    "type": "number",
+                    "description": "Importance score between 0 and 1. Higher means more important to remember.",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "topics": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Related topics or tags for the memory",
+                    "default": []
+                }
+            },
+            "required": ["content"]
+        }
 
     async def _execute(self, tool_call_params: ToolCallParams) -> str:
         #TODO:
@@ -51,4 +80,20 @@ class StoreMemoryTool(BaseTool):
         # 6. Call `memory_store` `add_memory` (we will implement logic in `memory_store` later)
         # 7. Add result to stage
         # 8. Return result
-        raise NotImplementedError()
+        arguments = json.loads(tool_call_params.tool_call.function.arguments)
+        content = arguments["content"]
+        category = arguments.get("category", "general")
+        importance = arguments.get("importance", 0.5)
+        topics = arguments.get("topics", [])
+        
+        result = await self.memory_store.add_memory(
+            api_key=tool_call_params.api_key,
+            content=content,
+            importance=importance,
+            category=category,
+            topics=topics
+        )
+        
+        tool_call_params.stage.append_content(f"✅ {result}\n\n**Details:**\n- Content: {content}\n- Category: {category}\n- Importance: {importance}\n- Topics: {', '.join(topics) if topics else 'None'}")
+        
+        return result
