@@ -84,6 +84,8 @@ class LongTermMemoryStore:
         except Exception:
             # If file doesn't exist, create empty collection
             collection = MemoryCollection()
+
+        self.cache[memory_file_path] = collection
         
         return collection
 

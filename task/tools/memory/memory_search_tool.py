@@ -20,16 +20,14 @@ class SearchMemoryTool(BaseTool):
 
     @property
     def name(self) -> str:
-        # TODO: provide self-descriptive name
-        return "search_memory"
+        return "search_long_term_memory"
 
     @property
     def description(self) -> str:
-        # TODO: provide tool description that will help LLM to understand when to use this tools and cover 'tricky'
-        #  moments (not more 1024 chars)
-        return ("Search long-term memory for relevant information about the user. Use this tool when you need to retrieve "
-                "previously stored facts about the user's preferences, personal information, goals, or context. Returns the most "
-                "relevant matching memories based on semantic similarity.")
+        return (
+            "Search long-term memory for relevant user information using semantic similarity. "
+            "Use this tool to recall preferences, personal details, goals, and context from prior conversations."
+        )
 
     @property
     def parameters(self) -> dict[str, Any]:
@@ -55,15 +53,6 @@ class SearchMemoryTool(BaseTool):
         }
 
     async def _execute(self, tool_call_params: ToolCallParams) -> str:
-        #TODO:
-        # 1. Load arguments with `json`
-        # 2. Get `query` from arguments
-        # 3. Get `top_k` from arguments, default is 5
-        # 4. Call `memory_store` `search_memories` (we will implement logic in `memory_store` later)
-        # 5. If results are empty then set `final_result` as "No memories found.",
-        #    otherwise iterate through results and collect content, category and topics (if preset) in markdown format
-        # 6. Add result to stage as markdown text
-        # 7. Return result
         arguments = json.loads(tool_call_params.tool_call.function.arguments)
         query = arguments["query"]
         top_k = arguments.get("top_k", 5)
@@ -77,15 +66,14 @@ class SearchMemoryTool(BaseTool):
         if not results:
             final_result = "No memories found."
         else:
-            markdown_results = "### Search Results:\n\n"
-            for i, memory_data in enumerate(results, 1):
-                markdown_results += f"**{i}. {memory_data.content}**\n"
-                markdown_results += f"   - Category: {memory_data.category}\n"
-                markdown_results += f"   - Importance: {memory_data.importance}\n"
-                if memory_data.topics:
-                    markdown_results += f"   - Topics: {', '.join(memory_data.topics)}\n"
-                markdown_results += "\n"
-            final_result = markdown_results
+            lines: list[str] = [f"Found {len(results)} relevant memories:"]
+            for memory_data in results:
+                lines.append(
+                    f"Category: {memory_data.category}; Importance: {memory_data.importance}; "
+                    f"Topics: {', '.join(memory_data.topics) if memory_data.topics else 'none'}; "
+                    f"Content: {memory_data.content}"
+                )
+            final_result = "\n".join(lines)
         
         tool_call_params.stage.append_content(final_result)
         

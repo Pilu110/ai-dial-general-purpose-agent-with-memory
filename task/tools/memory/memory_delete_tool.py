@@ -18,8 +18,7 @@ class DeleteMemoryTool(BaseTool):
 
     @property
     def name(self) -> str:
-        # TODO: provide self-descriptive name
-        return "delete_memory"
+        return "delete_long_term_memory"
 
     @property
     def description(self) -> str:
@@ -30,21 +29,17 @@ class DeleteMemoryTool(BaseTool):
 
     @property
     def parameters(self) -> dict[str, Any]:
-        # TODO: provide tool parameters JSON Schema with empty properties
         return {
             "type": "object",
-            "properties": {}
+            "properties": {},
+            "required": []
         }
 
     async def _execute(self, tool_call_params: ToolCallParams) -> str:
-        #TODO:
-        # 1. Call `memory_store` `delete_all_memories` (we will implement logic in `memory_store` later
-        # 2. Add result to stage
-        # 3. Return result
         result = await self.memory_store.delete_all_memories(
             api_key=tool_call_params.api_key
         )
-        
-        tool_call_params.stage.append_content(f"🗑️ {result}")
+
+        tool_call_params.stage.append_content(result)
         
         return result

@@ -162,18 +162,18 @@ def test_tool_names_and_descriptions():
     delete_tool = DeleteMemoryTool(memory_store=store)
     
     # Test store tool
-    assert store_tool.name == "store_memory"
+    assert store_tool.name == "store_long_term_memory"
     assert len(store_tool.description) > 0
     assert store_tool.description.endswith(".") or store_tool.description.endswith(")")
     print(f"✓ Store tool: '{store_tool.name}' - {len(store_tool.description)} chars description")
     
     # Test search tool
-    assert search_tool.name == "search_memory"
+    assert search_tool.name == "search_long_term_memory"
     assert len(search_tool.description) > 0
     print(f"✓ Search tool: '{search_tool.name}' - {len(search_tool.description)} chars description")
     
     # Test delete tool
-    assert delete_tool.name == "delete_memory"
+    assert delete_tool.name == "delete_long_term_memory"
     assert len(delete_tool.description) > 0
     print(f"✓ Delete tool: '{delete_tool.name}' - {len(delete_tool.description)} chars description")
     
@@ -244,20 +244,20 @@ def test_tool_schemas():
     # Test store tool schema
     store_schema = get_schema_dict(store_tool.schema)
     assert store_schema.get("type") == "function"
-    assert store_schema.get("function", {}).get("name") == "store_memory"
+    assert store_schema.get("function", {}).get("name") == "store_long_term_memory"
     assert len(store_schema.get("function", {}).get("description", "")) > 0
     print("✓ Store tool schema is valid")
     
     # Test search tool schema
     search_schema = get_schema_dict(search_tool.schema)
     assert search_schema.get("type") == "function"
-    assert search_schema.get("function", {}).get("name") == "search_memory"
+    assert search_schema.get("function", {}).get("name") == "search_long_term_memory"
     print("✓ Search tool schema is valid")
     
     # Test delete tool schema
     delete_schema = get_schema_dict(delete_tool.schema)
     assert delete_schema.get("type") == "function"
-    assert delete_schema.get("function", {}).get("name") == "delete_memory"
+    assert delete_schema.get("function", {}).get("name") == "delete_long_term_memory"
     print("✓ Delete tool schema is valid")
     
     return True
