@@ -20,6 +20,7 @@ from task.tools.rag.rag_tool import RagTool
 
 DIAL_ENDPOINT = os.getenv('DIAL_ENDPOINT', "http://localhost:8080")
 DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME', 'gpt-4o')
+FAST_DEPLOYMENT_NAME = os.getenv('FAST_DEPLOYMENT_NAME', 'gpt-4o-mini')
 # DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME', 'claude-sonnet-3-7')
 
 
@@ -80,7 +81,9 @@ class GeneralPurposeAgentApplication(ChatCompletion):
             await GeneralPurposeAgent(
                 endpoint=DIAL_ENDPOINT,
                 system_prompt=SYSTEM_PROMPT,
-                tools=self.tools
+                tools=self.tools,
+                memory_store=self.memory_store,
+                fast_deployment_name=FAST_DEPLOYMENT_NAME,
             ).handle_request(
                 choice=choice,
                 deployment_name=DEPLOYMENT_NAME,

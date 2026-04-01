@@ -122,6 +122,41 @@ class LongTermMemoryStore:
         _, ixes = idx.search(qe, k)
         return [c.memories[i].data for i in ixes[0] if i >= 0]
 
+    async def get_all_memories(self, api_key: str) -> list[MemoryData]:
+        """Return all user memories as MemoryData entries."""
+        collection = await self._load_memories(api_key)
+        return [memory.data for memory in collection.memories]
+
+    async def replace_memories(self, api_key: str, memories: list[dict]) -> str:
+        """Replace all memories with the provided normalized memory entries."""
+        collection = MemoryCollection()
+        for idx, item in enumerate(memories):
+            content = str(item.get("content", "")).strip()
+            if not content:
+                continue
+
+            importance = float(item.get("importance", 0.5))
+            importance = max(0.0, min(1.0, importance))
+            category = str(item.get("category", "general")).strip() or "general"
+            topics = item.get("topics", [])
+            topics = [str(topic).strip() for topic in topics if str(topic).strip()]
+
+            embedding = self.model.encode([content])[0].tolist()
+            memory = Memory(
+                data=MemoryData(
+                    id=int(datetime.now(UTC).timestamp()) + idx,
+                    content=content,
+                    importance=importance,
+                    category=category,
+                    topics=topics,
+                ),
+                embedding=embedding,
+            )
+            collection.memories.append(memory)
+
+        await self._save_memories(api_key, collection)
+        return f"Memory profile updated with {len(collection.memories)} entries."
+
     def _needs_deduplication(self, collection: MemoryCollection) -> bool:
         """Check if deduplication is needed (>24 hours since last deduplication)."""
         if len(collection.memories) <= 10: return False
