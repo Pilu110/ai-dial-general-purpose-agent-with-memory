@@ -58,6 +58,10 @@
     "dial_api_key": {
       "project": "TEST-PROJECT",
       "role": "default"
+    },
+    "${DIAL_API_KEY}": {
+      "project": "TEST-PROJECT",
+      "role": "default"
     }
   },
   "roles": {

@@ -87,12 +87,13 @@ class GeneralPurposeAgent:
         )
 
         if assistant_message.tool_calls:
+            conversation_id = request.headers.get('x-conversation-id', 'local-conversation')
             tasks = [
                 self._process_tool_call(
                     tool_call=tool_call,
                     choice=choice,
                     api_key=internal_api_key,
-                    conversation_id=request.headers['x-conversation-id']
+                    conversation_id=conversation_id
                 )
                 for tool_call in assistant_message.tool_calls
             ]
