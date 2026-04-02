@@ -41,8 +41,8 @@ class LongTermMemoryStore:
         # 2. Return string with path in such format: `files/{bucket_with_app_home}/__long-memories/data.json`
         #    The memories will persist in appdata for this agent in `__long-memories` folder and `data.json` file
         #    (You will be able to check it also in Chat UI in attachments)
-        app_home_path = await dial_client.files.get_app_home_path()
-        return f"files/{app_home_path}/__long-memories/data.json"
+        files_home = await dial_client.my_files_home()
+        return f"{files_home}/__long-memories/data.json"
 
     async def _load_memories(self, api_key: str) -> MemoryCollection:
         #TODO:

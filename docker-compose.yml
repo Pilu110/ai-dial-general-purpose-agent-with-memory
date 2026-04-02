@@ -39,11 +39,14 @@ services:
     ports:
       - "8080:8080"
     image: epam/ai-dial-core:development
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       'AIDIAL_SETTINGS': '/opt/settings/settings.json'
       'JAVA_OPTS': '-Dgflog.config=/opt/settings/gflog.xml'
       'LOG_DIR': '/app/log'
       'STORAGE_DIR': '/app/data'
+      'DIAL_API_KEY': '${DIAL_API_KEY}'
       'aidial.config.files': '["/opt/config/config.json"]'
       'aidial.storage.overrides': '{ "jclouds.filesystem.basedir": "data" }'
       'aidial.redis.singleServerConfig.address': 'redis://redis:6379'

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 from typing import Any
 
 from aidial_client import AsyncDial
@@ -41,14 +42,15 @@ class GeneralPurposeAgent:
     async def handle_request(
             self, deployment_name: str, choice: Choice, request: Request, response: Response) -> Message:
         api_key = request.api_key
+        internal_api_key = os.getenv('DIAL_API_KEY') or api_key
 
         client: AsyncDial = AsyncDial(
             base_url=self.endpoint,
-            api_key=api_key,
+            api_key=internal_api_key,
             api_version='2025-01-01-preview'
         )
 
-        user_memories = await self.memory_store.get_all_memories(api_key)
+        user_memories = await self.memory_store.get_all_memories(internal_api_key)
 
         chunks = await client.chat.completions.create(
             messages=self._prepare_messages(request.messages, user_memories),
@@ -89,7 +91,7 @@ class GeneralPurposeAgent:
                 self._process_tool_call(
                     tool_call=tool_call,
                     choice=choice,
-                    api_key=api_key,
+                    api_key=internal_api_key,
                     conversation_id=request.headers['x-conversation-id']
                 )
                 for tool_call in assistant_message.tool_calls
@@ -113,7 +115,7 @@ class GeneralPurposeAgent:
                 assistant_message=content):
             await self._update_user_info_profile(
                 client=client,
-                api_key=api_key,
+                api_key=internal_api_key,
                 existing_memories=user_memories,
                 user_message=latest_user_message,
                 assistant_message=content,

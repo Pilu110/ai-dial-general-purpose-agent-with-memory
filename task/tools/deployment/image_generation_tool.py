@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from aidial_sdk.chat_completion import Message
@@ -10,7 +11,17 @@ from task.tools.models import ToolCallParams
 class ImageGenerationTool(DeploymentTool):
 
     async def _execute(self, tool_call_params: ToolCallParams) -> str | Message:
-        msg = await super()._execute(tool_call_params)
+        try:
+            msg = await super()._execute(tool_call_params)
+        except Exception as exc:
+            error_text = str(exc)
+            if "Unknown deployment" in error_text:
+                deployment_name = self.deployment_name
+                return (
+                    f"Image generation is not available in the current backend configuration. "
+                    f"The configured image deployment `{deployment_name}` is not available."
+                )
+            raise
 
         if msg.custom_content and msg.custom_content.attachments:
             for attachment in msg.custom_content.attachments:
@@ -24,7 +35,7 @@ class ImageGenerationTool(DeploymentTool):
 
     @property
     def deployment_name(self) -> str:
-        return "dall-e-3"
+        return os.getenv("IMAGE_DEPLOYMENT_NAME", "dall-e-3")
 
     @property
     def name(self) -> str:

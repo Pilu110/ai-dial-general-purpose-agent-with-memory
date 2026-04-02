@@ -20,7 +20,7 @@ from task.tools.rag.rag_tool import RagTool
 
 DIAL_ENDPOINT = os.getenv('DIAL_ENDPOINT', "http://localhost:8080")
 DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME', 'gpt-4o')
-FAST_DEPLOYMENT_NAME = os.getenv('FAST_DEPLOYMENT_NAME', 'gpt-4o-mini')
+FAST_DEPLOYMENT_NAME = os.getenv('FAST_DEPLOYMENT_NAME', 'gpt-4o-mini-2024-07-18')
 # DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME', 'claude-sonnet-3-7')
 
 
